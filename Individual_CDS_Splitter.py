@@ -47,10 +47,12 @@ if response.lower()!='n':
     ic_file_list = glob('hiin_improvement_calculator.xlsx')
     if len(ic_file_list) == 0:
         print("No Improvement Calc file found!")
+        print("Aborting now!")
         quit()
     elif len(ic_file_list) > 1:
         print("Found multiple Improvement Calc files, please place only ONE in the directory.")
         print(ic_file_list)
+        print("Aborting now!")
         quit()
     else:
         ic_name = ic_file_list[0]
@@ -64,9 +66,11 @@ if response.lower()!='n':
     ic_file_list = glob('hiin_ic_instruction_manual.pdf')
     if len(ic_file_list) == 0:
         print("No instructions found")
+        print("Aborting now!")
         quit()
     elif len(ic_file_list) > 1:
         print("Found multiple instructions please place only ONE in the directory.")
+        print("Aborting now!")
         print(ic_file_list)
         quit()
     else:
