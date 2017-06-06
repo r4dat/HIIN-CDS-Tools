@@ -95,6 +95,10 @@ if response.lower()!='y':
 print("Reading CDS Results File...")
 df = pd.read_html(cds_in,header=0,parse_dates=['Start Date','End Date'])[0]
 
+if len(df.columns)!=11:
+    print("11 columns expected, we found {x}".format(x=len(df.columns)))
+    print("We'll try this anyway but double check your file!")
+
 grouped_df = df.groupby('Reporting Entity')
 
 hospitals = list(df['Reporting Entity'].unique())
