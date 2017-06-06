@@ -118,7 +118,7 @@ for name in hospitals:
     hosp_short=hosp_short[0:8]+'_' # Using odd truncation avoid character limit
     os.makedirs(join(top_dir,name),exist_ok=True)
     out = grouped_df.get_group(name)
-    out.to_excel(join(cwd,top_dir,name,(hosp_short+cds_short+'.xlsx')),sheet_name=(hosp_short+cds_short),index=False)
+    out.to_excel(join(cwd,top_dir,name,(hosp_short+cds_short+'.xlsx')),sheet_name=(hosp_short+"_"+str(file_date)),index=False)
     if ic_bool==1:
         copyfile(join(cwd,ic_name),join(cwd,top_dir,name,(nice_short+ic_name)))
     if instr_bool==1:
