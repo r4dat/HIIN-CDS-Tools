@@ -11,9 +11,10 @@ from os.path import join
 from shutil import copyfile
 import pandas as pd
 
+
 ic_bool=0
 instr_bool=0
-# Expected setup is to drop the all measures CDS file and (optionally) a 
+# Expected setup is to drop the "BasicItems" CDS file and (optionally) a
 # fresh BLANK Improvement Calculator into the same directory. Then we split the
 # CDS file and write it to sub-directories w/a copy of the IC.
 # Working Folder contains: CDS_Spliter, CDS_Results, Improvement Calc.
@@ -22,7 +23,9 @@ instr_bool=0
 cwd = os.getcwd()
 
 # Get result filename, test for != 1 result file
-cds_file_list = glob('CDS_Results_*.xls')
+cds_file_list = glob('CDS_BasicItems*.xls')
+
+
 if len(cds_file_list) == 0:
     print("No CDS file found!")
     quit()
@@ -41,7 +44,7 @@ print()
 response = input("Do you want to copy the Impr. Calc. into each hospital's folder? y/[n]? ")
 if response.lower()!='n':
     # Get improvement calc filename. Test for !=1 copies.
-    ic_file_list = glob('ImprovementCalculator-HEN2*.xlsm')
+    ic_file_list = glob('hiin_improvement_calculator.xlsx')
     if len(ic_file_list) == 0:
         print("No Improvement Calc file found!")
         quit()
@@ -58,7 +61,7 @@ print()
 response = input("Do you want to copy the Instructions into each hosp folder? y/[n]? ")
 if response.lower()!='n':
     # Get improvement calc filename. Test for !=1 copies.
-    ic_file_list = glob('HEN2-IC-Instructions*.pdf')
+    ic_file_list = glob('hiin_ic_instruction_manual.pdf')
     if len(ic_file_list) == 0:
         print("No instructions found")
         quit()
