@@ -177,7 +177,88 @@ def plotPerfData(outputDir, dat, measure):
 
     return outFilename, outFilepath
 
+def plot_comp_data(output_dir, dat, measure):
+    hosp_name = dat['Reporting Entity'].values[0]
+    hosp_name.replace('Hospital ', '')  # Shorten hospital titles for the label
+    clean_hosp_name = ''.join(c for c in hosp_name if c.isalnum())  # Remove special chars
 
+    datecond = dat['Start Date'] >= date(2016, 10, 1)
+    measure_cond = dat['HRET_MeasureID'] == measure
+    dat = dat[datecond & measure_cond]
+
+    plot_title = dat['Measure'].values[0]
+    plot_title = ''.join(c for c in plot_title if c.isalnum())
+
+    out_filename = ''.join(clean_hosp_name + '_comp_' + measure + plot_title + ".png")
+    out_filepath = os.path.join(output_dir, out_filename)
+
+
+    axislbl = 'Rate'
+    width_inches = 5
+    height_inches = 2
+
+    fig_size = (width_inches, height_inches)
+    params = {  # 'backend': 'png',
+        'axes.labelsize': 4,
+        # 'axes.fontsize':4,
+        'font.size': 4,
+        'legend.fontsize': 4,
+        'text.usetex': False,  # Causes issues with multiproc.
+        'figure.figsize': fig_size,
+        'font.family': 'serif',
+        'axes.linewidth': 0.5,
+        'xtick.labelsize': 3,
+        'ytick.labelsize': 4}
+    plt.rcParams.update(params)
+
+    compchart = plt.figure()
+    compchart.clf()
+
+    dat['fac_rate_isfinite'] = np.isfinite(dat['Rate'].astype(np.double))
+    dat['state_rate_isfinite'] = np.isfinite(dat['All State Organizations Rate'].astype(np.double))
+    dat['HRET_rate_isfinite'] = np.isfinite(dat['All Project Organizations Rate'].astype(np.double))
+
+    plt.plot(dat[(dat['HRET_rate_isfinite']) & datecond]['Start Date'].values,
+             dat[(dat['HRET_rate_isfinite']) & datecond]['All Project Organizations Rate'],
+             marker='s', markersize=1, markerfacecolor='#078F33', markeredgecolor='w',
+             color='#078F33',
+             linewidth=1,
+             label='CDC Strive')
+    plt.plot(dat[dat['state_rate_isfinite'] & datecond]['Start Date'].values,
+             dat[dat['state_rate_isfinite'] & datecond]['All State Organizations Rate'],
+             color='#A5998C',
+             linewidth=1,
+             label='Kansas Strive')
+
+    datecond = dat['Start Date'] >= date(2016, 10, 1)
+    dat = dat[datecond]
+
+    ax = plt.gca()  # gets current axes.
+    ax.axes.xaxis.set_major_formatter(mdates.DateFormatter('%b-%Y'))
+    ax.xaxis.set_major_locator(mdates.MonthLocator())
+    compchart.autofmt_xdate()
+    plt.ylim(ymin=0)
+    plt.ylabel(axislbl.replace('%', '\\%'))
+    yax = ax.get_ylim()
+    ymin = yax[0]
+    ymax = (yax[1] * 1.05)
+    ax.set_ylim(ymin, ymax)
+    xmin = date(2016, 10, 1)
+    if date(2017, 8, 10) > datetime.now().date():
+        xmax = date(2017, 6, 1)
+    else:
+        xmax = datetime.now().date()
+    ax.set_xlim(xmin, xmax)
+
+    legend = plt.legend(loc='lower center', bbox_to_anchor=(0., -0.25, 1., .0122),
+                        mode="expand", ncol=4, handlelength=5)
+    legend.get_frame().set_edgecolor('white')
+    plt.savefig(out_filepath, dpi=300, bbox_extra_artists=[legend], bbox_inches='tight')
+    # Clear figure so that the next plot is clean
+    plt.clf()
+    plt.close(compchart)
+
+    return out_filename, out_filepath
 
 
 if __name__=='__main__':
