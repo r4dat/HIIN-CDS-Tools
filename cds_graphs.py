@@ -92,10 +92,8 @@ def plot_perf_data(output_dir, dat, measure):
     perfchart = plt.figure()
     perfchart.clf()
 
-    # Add baseline rate.
     # Baseline rate plot
-
-    # Create empty dataframe to fill to eval period (April,May,June)
+    # Create empty dataframe to fill to eval period
     fill_list = []
     for y in range(2016, 2017 + 1):
         for m in range(1, 12 + 1):
@@ -193,12 +191,11 @@ def plot_comp_data(output_dir, dat, measure):
     height_inches = 2
 
     fig_size = (width_inches, height_inches)
-    params = {  # 'backend': 'png',
+    params = {
         'axes.labelsize': 4,
-        # 'axes.fontsize':4,
         'font.size': 4,
         'legend.fontsize': 4,
-        'text.usetex': False,  # Causes issues with multiproc.
+        'text.usetex': False,  # True causes issues with multiproc.
         'figure.figsize': fig_size,
         'font.family': 'serif',
         'axes.linewidth': 0.5,
@@ -269,8 +266,7 @@ if __name__ == '__main__':
                                  multiprocessing.cpu_count(),))
     args = parser.parse_args()
 
-    if not os.path.isdir(args.outputDir) or not os.access(args.outputDir,
-                                                          os.W_OK):
+    if not os.path.isdir(args.outputDir) or not os.access(args.outputDir,os.W_OK):
         sys.exit("Unable to write to output directory %s" % (args.outputDir,))
 
     if args.numProcessors < 1:
@@ -288,18 +284,22 @@ if __name__ == '__main__':
         cds_in = cds_file_list[0]
 
     # Begin processing.
+    # Read_html returns a list of dataframes (assuming multi tables per page) so we have to get index 0.
     print("Reading CDS Results File...")
-    df = pd.read_html(cds_in, header=0, parse_dates=['Start Date', 'End Date'])[0]
+    try:
+        df = pd.read_html(cds_in, header=0, parse_dates=['Start Date', 'End Date'])[0]
+    except IOError:
+        sys.exit("Error reading file.")
 
     hospitals = list(df['Reporting Entity'].unique())
 
-    # Start my pool
+
     pool = multiprocessing.Pool(args.numProcessors)
 
     print("Making plots for %d hospitals" %
           (len(hospitals)))
 
-    # Build task list
+    # Task list. Set up a Queue if using multiproc.
     tasks = []
     while hospitals:
         sub_df = df[df['Reporting Entity'] == (hospitals.pop())]
@@ -313,8 +313,8 @@ if __name__ == '__main__':
 
     # Process results
     for result in results:
-        (plotFilename, plotFilepath) = result.get()
-        print("Result: plot written to %s" % plotFilename)
+        (plot_filename, plot_filepath) = result.get()
+        print("Result: plot written to %s" % plot_filename)
 
     pool.close()
     pool.join()
