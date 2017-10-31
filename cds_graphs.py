@@ -284,7 +284,7 @@ if __name__ == '__main__':
         cds_in = cds_file_list[0]
 
     # Begin processing.
-    # Read_html returns a list of dataframes (assuming multi tables per page) so we have to get index 0.
+    # Read_html returns a list of dataframes (assuming multiple tables per page) so we have to get index 0.
     print("Reading CDS Results File...")
     try:
         df = pd.read_html(cds_in, header=0, parse_dates=['Start Date', 'End Date'])[0]
@@ -299,7 +299,7 @@ if __name__ == '__main__':
     print("Making plots for %d hospitals" %
           (len(hospitals)))
 
-    # Task list. Set up a Queue if using multiproc.
+    # Task list. Set up a Queue if directly using multiproc.
     tasks = []
     while hospitals:
         sub_df = df[df['Reporting Entity'] == (hospitals.pop())]
@@ -308,10 +308,10 @@ if __name__ == '__main__':
             sub_msr = measures.pop()
             tasks.append((args.outputDir, sub_df, sub_msr))
 
-    # Run pool
+
     results = [pool.apply_async(plot_perf_data, t) for t in tasks]
 
-    # Process results
+
     for result in results:
         (plot_filename, plot_filepath) = result.get()
         print("Result: plot written to %s" % plot_filename)
